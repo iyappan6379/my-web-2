@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Album</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    .album-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      justify-items: center;
+    }
+
+    .album {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 200px;
+      cursor: pointer;
+    }
+
+    .album img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .album-title {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .album-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .album-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 10px;
+      transition: opacity 0.5s ease;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+      color: white;
+    }
+
+    .btn {
+      font-size: 2rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Album</h1>
+
+  <div class="album-container" id="album-container">
+    <!-- Albums will be added here by JS -->
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <span class="close" id="close-btn">&times;</span>
+    <img id="modal-img" src="" alt="Slide">
+    <div class="controls">
+      <span class="btn" id="prev">&#10094;</span>
+      <span class="btn" id="next">&#10095;</span>
+    </div>
+  </div>
+
+  <script>
+    const albumsData = [
+      {
+        title: "Broucher",
+        cover: "cs.jpeg",
+        images: ["cs.jpeg"]
+      },
+      {
+        title: "CYBER CRIME AWARENESS",
+        cover: "police.jpeg",
+        images: ["police.jpeg","cyber crime1.jpeg","cyber crime 2.jpeg"]
+      },
+      {
+        title: "DIGI-LOCKER AWARENESS",
+        cover: "digilocker1.jpeg",
+        images: ["digilocker1.jpeg"]
+      },
+      {
+        title: "DRUG AWARENESS",
+        cover: "drug awareness1.jpeg",
+        images: ["drug awareness1.jpeg","drug awareness 4.jpeg", "drug awareness2.jpeg"]
+      },
+      {
+        title: "FRESHERS DAY",
+        cover: "freshers4.jpeg",
+        images: ["freshers4.jpeg","freshers3.jpeg","freshers1.jpeg","freshers2iii.jpeg","freshers3ii.jpeg","freshers4i.jpeg", "freshers2ii.jpeg","freshers5.jpeg",]
+
+      },
+      {
+        title: "ETHICAL HACKING",
+        cover: "hacking.jpg",
+        images: ["hacking.jpg","hacking1.jpeg","hacking 2.jpeg","hacking feedback2.jpeg","hacking feedback3.jpeg","hacking feedback4.jpeg","hacking feedback1.jpeg","hacking feedback5.jpeg","hacking feedback6.jpeg",]
+      },
+      {
+        title: "EXHIBITION",
+        cover: "exhibition1.jpeg",
+        images: ["exhibition1.jpeg",]
+      },
+      {
+        title: "EXTRACURRICULAR ACTIVITIES",
+        cover: "extra2.jpeg",
+        images: ["extra2.jpeg","extra1.jpeg",]
+      },
+      {
+        title: "PARENTS TEACHERS MEETING",
+        cover: "pte1.jpeg",
+        images: ["pte1.jpeg",]
+      },
+      {
+        title: "PONGAL CELEBRATION 2024",
+        cover: "pongal3.jpeg",
+        images: ["pongal3.jpeg","pongal2.jpeg","pongal2024.jpeg",]
+      },
+      {
+        title: "TEACHERS Day CELEBRATION 2023",
+        cover: "teachers day.jpeg",
+        images: ["teachers day.jpeg","teachers day intro.jpeg","teachers day4.jpeg","teacher 1.jpeg","teachers day 6.jpeg","teachers5.jpeg","teachers day 2.jpeg","teachersday 3.jpeg",]
+      },
+      {
+        title: "TEACHING IN SMART CLASS",
+        cover: "teaching2.jpeg",
+        images: ["teaching2.jpeg","teaching3.jpeg","teaching1.jpeg","teaching4.jpeg",]
+      },
+      {
+        title: "TRAI",
+        cover: "trai main.jpeg",
+        images: ["trai main.jpeg","trai3.jpeg","trai7.jpeg","trai1.jpeg","trai2.jpeg","trai4.jpeg","trai8.jpeg","trai9.jpeg","trai5.jpeg","trai6.jpeg",]
+      }
+      // Add more albums here
+    ];
+
+    const albumContainer = document.getElementById("album-container");
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modal-img");
+    const closeBtn = document.getElementById("close-btn");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+    let currentAlbum = [];
+    let currentIndex = 0;
+
+    // Render albums
+    albumsData.forEach((album, i) => {
+      const div = document.createElement("div");
+      div.className = "album";
+      div.innerHTML = `<img src="${album.cover}" alt="${album.title}">
+                       <div class="album-title">${album.title}</div>`;
+      div.addEventListener("click", () => openAlbum(album.images));
+      albumContainer.appendChild(div);
+    });
+
+    function openAlbum(images) {
+      currentAlbum = images;
+      currentIndex = 0;
+      showImage();
+      modal.classList.add("show");
+    }
+
+    function showImage() {
+      modalImg.style.opacity = 0;
+      setTimeout(() => {
+        modalImg.src = currentAlbum[currentIndex];
+        modalImg.style.opacity = 1;
+      }, 200);
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+    }
+
+    function showNext() {
+      currentIndex = (currentIndex + 1) % currentAlbum.length;
+      showImage();
+    }
+
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + currentAlbum.length) % currentAlbum.length;
+      showImage();
+    }
+
+    closeBtn.addEventListener("click", closeModal);
+    nextBtn.addEventListener("click", showNext);
+    prevBtn.addEventListener("click", showPrev);
+
+    // Optional: close on background click
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModal();
+    });
+  </script>
+
+</body>
+</html>
